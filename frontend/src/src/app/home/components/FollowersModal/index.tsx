@@ -10,24 +10,32 @@ interface FollowersModalProps {
   playlist: PlaylistModel;
 }
 
+const FollowerItem = ({ follower }: { follower: UserModel }) => {
+  return (
+    <Typography sx={{ mb: 1 }} data-cy="follower-modal">
+      {follower.name}
+    </Typography>
+  );
+};
+
 const FollowersModal = (props: FollowersModalProps) => {
   const { open, setOpen, playlist } = props;
   const { service } = useContext(PlaylistContext);
   const [followersData, setFollowersData] = useState<UserModel[]>([]);
 
-  useEffect(() => {
-    const fetchFollowersData = async () => {
-      if (open) {
-        try {
-          const users = await service.getUserArray(playlist.followers);
-          setFollowersData(users);
-        } catch (error) {
-          console.error("Error fetching followers:", error);
-          setFollowersData([]); // Reset followers data on error
-        }
+  const fetchFollowersData = async () => {
+    if (open) {
+      try {
+        const followers = await service.getUserArray(playlist.followers);
+        setFollowersData(followers);
+      } catch (error) {
+        console.error("Error fetching followers:", error);
+        setFollowersData([]); // Reset followers data on error
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchFollowersData();
   }, [open, playlist.followers, service]);
 
@@ -66,9 +74,7 @@ const FollowersModal = (props: FollowersModalProps) => {
         </Typography>
 
         {followersData.map((follower, index) => (
-          <Typography key={index} sx={{ mb: 1 }} data-cy="followers-modal">
-            {follower.name}
-          </Typography>
+          <FollowerItem key={index} follower={follower} />
         ))}
       </Sheet>
     </Modal>
